@@ -78,19 +78,67 @@ async function getCommitCount(repo: string): Promise<number> {
 }
 
 async function getWeeklyActivity(repo: string): Promise<number[]> {
+  // Try GitHub's pre-computed weekly stats first (cheap, single call)
   try {
     const res = await fetch(
       `https://api.github.com/repos/${repo}/stats/commit_activity`,
       { headers: ghHeaders(), next: { revalidate: 3600 } }
     );
-    if (!res.ok || res.status === 202) return [];
-    const data = await res.json();
-    return Array.isArray(data)
-      ? data.map((w: { total: number }) => w.total ?? 0)
-      : [];
+    if (res.ok && res.status !== 202) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const weekly = data.map((w: { total: number }) => w.total ?? 0);
+        if (weekly.some((v) => v > 0)) return weekly;
+      }
+    }
   } catch {
-    return [];
+    /* fall through */
   }
+
+  // Fallback: bucket actual commit timestamps into weeks ourselves.
+  // Reliable for new repos where GitHub hasn't computed stats yet.
+  return bucketCommitsByWeek(repo);
+}
+
+async function bucketCommitsByWeek(repo: string): Promise<number[]> {
+  const buckets = new Array(52).fill(0);
+  try {
+    // Pull up to 200 commits across 2 pages — covers >12 months for most repos
+    const pages = await Promise.all([
+      fetch(
+        `https://api.github.com/repos/${repo}/commits?per_page=100&page=1`,
+        { headers: ghHeaders(), next: { revalidate: 3600 } }
+      ),
+      fetch(
+        `https://api.github.com/repos/${repo}/commits?per_page=100&page=2`,
+        { headers: ghHeaders(), next: { revalidate: 3600 } }
+      ),
+    ]);
+
+    const commits: { commit?: { author?: { date?: string }; committer?: { date?: string } } }[] = [];
+    for (const p of pages) {
+      if (!p.ok) continue;
+      const data = await p.json();
+      if (Array.isArray(data)) commits.push(...data);
+    }
+
+    const now = Date.now();
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+
+    for (const c of commits) {
+      const iso =
+        c?.commit?.committer?.date ?? c?.commit?.author?.date ?? null;
+      if (!iso) continue;
+      const ts = new Date(iso).getTime();
+      const weeksAgo = Math.floor((now - ts) / weekMs);
+      if (weeksAgo >= 0 && weeksAgo < 52) {
+        buckets[51 - weeksAgo]++;
+      }
+    }
+  } catch {
+    /* return empty buckets */
+  }
+  return buckets;
 }
 
 async function getRealLoc(repo: string): Promise<number> {
@@ -163,11 +211,6 @@ function fmt(n: number): string {
   return n.toLocaleString();
 }
 
-function fmtChange(pct: number): string {
-  const sign = pct >= 0 ? "+" : "";
-  return `${sign}${pct.toFixed(1)}%`;
-}
-
 async function buildProjectData(p: Project): Promise<ProjectData> {
   const [apiCommits, weekly, apiLoc, languages, recentCommits] =
     await Promise.all([
@@ -190,12 +233,8 @@ async function buildProjectData(p: Project): Promise<ProjectData> {
   let running = baseCommits;
   const cumulative = weeklySeries.map((w) => (running += w));
 
-  // Momentum (still used for the percentage indicator + color)
-  const last8 = weeklySeries.slice(-8);
-  const recent = last8.slice(-4).reduce((a, b) => a + b, 0);
-  const prior = last8.slice(0, 4).reduce((a, b) => a + b, 0);
-  const change =
-    prior === 0 ? (recent > 0 ? 100 : 0) : ((recent - prior) / prior) * 100;
+  // Most recent commit's timestamp — drives the "Last commit X ago" indicator
+  const lastCommitAt = recentCommits[0]?.date ?? null;
 
   return {
     slug: p.slug,
@@ -206,7 +245,7 @@ async function buildProjectData(p: Project): Promise<ProjectData> {
     liveUrl: p.liveUrl,
     status: p.status,
     customMetric: p.customMetric,
-    stats: { commits, loc, sparkline: weeklySeries, cumulative, change },
+    stats: { commits, loc, sparkline: weeklySeries, cumulative, lastCommitAt },
     languages,
     recentCommits,
   };
@@ -215,81 +254,9 @@ async function buildProjectData(p: Project): Promise<ProjectData> {
 export default async function ProjectsPage() {
   const data = await Promise.all(projects.map(buildProjectData));
 
-  const totalCommits = data.reduce((sum, p) => sum + p.stats.commits, 0);
-  const totalLoc = data.reduce((sum, p) => sum + p.stats.loc, 0);
-  const avgChange =
-    data.reduce((sum, p) => sum + p.stats.change, 0) / Math.max(1, data.length);
-
   return (
-    <main className="min-h-screen bg-white text-gray-900">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 lg:py-28">
-        {/* Eyebrow + Title */}
-        <p className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-4">
-          Projects
-        </p>
-        <div className="flex items-baseline justify-between flex-wrap gap-4 mb-2">
-          <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight">
-            Trading floor.
-          </h1>
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-500">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-            <span>Market open</span>
-          </div>
-        </div>
-        <p className="text-base text-gray-600 leading-relaxed max-w-2xl mb-10">
-          Live read of what I&apos;m building. Pick a ticker on the right to
-          inspect — chart, language composition, and recent commits all stream
-          straight from GitHub.
-        </p>
-
-        {/* Index summary bar */}
-        <div className="border border-gray-200 rounded-xl px-6 py-4 mb-6 grid grid-cols-2 md:grid-cols-4 gap-6 font-mono">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">
-              Listed
-            </p>
-            <p className="text-2xl text-gray-900">{data.length}</p>
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">
-              Total commits
-            </p>
-            <p className="text-2xl text-gray-900">
-              {totalCommits.toLocaleString()}
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">
-              Total LOC
-            </p>
-            <p className="text-2xl text-gray-900">{fmt(totalLoc)}</p>
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">
-              Avg momentum
-            </p>
-            <p
-              className={`text-2xl ${
-                avgChange >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {fmtChange(avgChange)}
-            </p>
-          </div>
-        </div>
-
-        {/* Trading dashboard */}
-        <TradingFloor projects={data} />
-
-        {/* Footer note */}
-        <p className="mt-6 text-xs font-mono text-gray-400">
-          Data refreshes hourly. Commits and recent activity pulled live from
-          GitHub. LOC via codetabs. Momentum = recent 4 weeks vs prior 4 weeks.
-        </p>
-      </div>
+    <main className="bg-white text-gray-900 overflow-hidden">
+      <TradingFloor projects={data} />
     </main>
   );
 }
