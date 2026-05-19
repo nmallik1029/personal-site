@@ -4,15 +4,6 @@ export default function ExperiencePage() {
   return (
     <main className="min-h-screen bg-white text-gray-900">
       <section className="max-w-3xl mx-auto px-6 lg:px-12 py-20 lg:py-28">
-        {/* Back link */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors mb-12"
-        >
-          <span>←</span>
-          <span>Home</span>
-        </Link>
-
         <p className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-4">
           Experience
         </p>

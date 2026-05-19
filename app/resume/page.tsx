@@ -8,15 +8,6 @@ export default function ResumePage() {
   return (
     <main className="min-h-screen bg-white text-gray-900">
       <div className="max-w-4xl mx-auto px-6 lg:px-12 py-16 lg:py-20">
-        {/* Back link */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors mb-12"
-        >
-          <span>←</span>
-          <span>Home</span>
-        </Link>
-
         {/* Header */}
         <header className="pb-8 mb-10 border-b-2 border-gray-300 text-center">
           <h1 className="text-5xl font-semibold tracking-tight mb-3">
