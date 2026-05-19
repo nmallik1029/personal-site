@@ -17,6 +17,11 @@ type Project = {
   customMetric: { label: string; value: string };
   manualCommits?: number;
   manualLoc?: number;
+  // Path under /public — e.g. "/projects/ember-analytics/demo.mp4"
+  // Recognised extensions: .mp4/.webm (video), .gif/.png/.jpg/.jpeg/.webp (image)
+  media?: string;
+  // Optional poster image shown before a video starts playing
+  mediaPoster?: string;
 };
 
 const projects: Project[] = [
@@ -245,6 +250,8 @@ async function buildProjectData(p: Project): Promise<ProjectData> {
     liveUrl: p.liveUrl,
     status: p.status,
     customMetric: p.customMetric,
+    media: p.media,
+    mediaPoster: p.mediaPoster,
     stats: { commits, loc, sparkline: weeklySeries, cumulative, lastCommitAt },
     languages,
     recentCommits,

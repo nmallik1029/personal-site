@@ -16,6 +16,8 @@ export type ProjectData = {
   liveUrl?: string;
   status: "Live" | "In Dev";
   customMetric: { label: string; value: string };
+  media?: string;
+  mediaPoster?: string;
   stats: {
     commits: number;
     loc: number;
@@ -156,21 +158,13 @@ export default function TradingFloor({ projects }: { projects: ProjectData[] }) 
           </div>
           <p className="text-base text-gray-600 mb-10">{active.tagline}</p>
 
-          {/* MEDIA SLOT — placeholder for demo video / screenshots / hero image */}
-          <div
-            data-tour="media"
-            className="aspect-video w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex items-center justify-center mb-8"
-          >
-            <div className="text-center px-6">
-              <p className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">
-                Demo
-              </p>
-              <p className="text-sm text-gray-500 max-w-md">
-                Drop a video, GIF, or screenshot here — anything that shows{" "}
-                {active.name} in action.
-              </p>
-            </div>
-          </div>
+          {/* MEDIA SLOT — per-project demo media; falls back to placeholder */}
+          <ProjectMedia
+            src={active.media}
+            poster={active.mediaPoster}
+            name={active.name}
+          />
+
 
           {/* Stats row + chart */}
           <div data-tour="repo-stats" className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -447,5 +441,86 @@ export default function TradingFloor({ projects }: { projects: ProjectData[] }) 
         </ul>
       </DraggablePanel>
     </>
+  );
+}
+
+const VIDEO_EXTS = [".mp4", ".webm", ".mov"];
+const IMAGE_EXTS = [".gif", ".png", ".jpg", ".jpeg", ".webp", ".avif", ".svg"];
+
+function ProjectMedia({
+  src,
+  poster,
+  name,
+}: {
+  src?: string;
+  poster?: string;
+  name: string;
+}) {
+  const wrap =
+    "aspect-video w-full rounded-2xl overflow-hidden mb-8 bg-gray-50";
+
+  if (!src) {
+    return (
+      <div
+        data-tour="media"
+        className={`${wrap} border-2 border-dashed border-gray-200 flex items-center justify-center`}
+      >
+        <div className="text-center px-6">
+          <p className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">
+            Demo
+          </p>
+          <p className="text-sm text-gray-500 max-w-md">
+            COMING SOON!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const lower = src.toLowerCase();
+  const isVideo = VIDEO_EXTS.some((e) => lower.endsWith(e));
+  const isImage = IMAGE_EXTS.some((e) => lower.endsWith(e));
+
+  if (isVideo) {
+    return (
+      <div data-tour="media" className={`${wrap} border border-gray-200`}>
+        <video
+          key={src}
+          src={src}
+          poster={poster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  if (isImage) {
+    return (
+      <div data-tour="media" className={`${wrap} border border-gray-200`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          key={src}
+          src={src}
+          alt={`${name} demo`}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  // Unknown extension — render placeholder
+  return (
+    <div
+      data-tour="media"
+      className={`${wrap} border-2 border-dashed border-gray-200 flex items-center justify-center`}
+    >
+      <p className="text-sm text-gray-500 font-mono">
+        Unsupported media: {src}
+      </p>
+    </div>
   );
 }
