@@ -132,7 +132,7 @@ export default function Skills() {
   };
 
   return (
-    <div className="border border-gray-100 rounded-xl p-4">
+    <div className="relative border border-gray-100 rounded-xl p-4">
       {/* Filter pills */}
       <div className="flex flex-wrap gap-2 mb-4">
         {categories.map((c) => (
@@ -178,9 +178,9 @@ export default function Skills() {
         </div>
       </div>
 
-      {/* Pagination controls */}
+      {/* Arrows — positioned outside the bordered container */}
       {totalPages > 1 && (
-        <div className="mt-3 flex items-center justify-between">
+        <>
           <button
             onClick={() => {
               stopAutoPlay();
@@ -188,7 +188,7 @@ export default function Skills() {
             }}
             disabled={!hasPrev}
             aria-label="Previous"
-            className="text-gray-400 hover:text-gray-900 disabled:opacity-25 disabled:hover:text-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="absolute -left-7 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-900 disabled:opacity-25 disabled:hover:text-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             <svg
               width="18"
@@ -204,10 +204,6 @@ export default function Skills() {
             </svg>
           </button>
 
-          <span className="text-[10px] font-mono uppercase tracking-widest text-gray-400">
-            {safePage + 1} / {totalPages}
-          </span>
-
           <button
             onClick={() => {
               stopAutoPlay();
@@ -215,7 +211,7 @@ export default function Skills() {
             }}
             disabled={!hasNext}
             aria-label="Next"
-            className="text-gray-400 hover:text-gray-900 disabled:opacity-25 disabled:hover:text-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="absolute -right-7 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-900 disabled:opacity-25 disabled:hover:text-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             <svg
               width="18"
@@ -230,7 +226,7 @@ export default function Skills() {
               <path d="M9 6l6 6-6 6" />
             </svg>
           </button>
-        </div>
+        </>
       )}
     </div>
   );
