@@ -17,7 +17,8 @@ export type ProjectData = {
   stats: {
     commits: number;
     loc: number;
-    sparkline: number[];
+    sparkline: number[]; // weekly counts (for mini sparklines)
+    cumulative: number[]; // running total over the last 52 weeks
     change: number;
   };
   languages: { name: string; percent: number; bytes: number }[];
@@ -119,8 +120,8 @@ export default function TradingFloor({ projects }: { projects: ProjectData[] }) 
             {active.tagline}
           </p>
 
-          {/* Big chart */}
-          <BigChart data={active.stats.sparkline} positive={positive} />
+          {/* Big chart — cumulative commit count over time */}
+          <BigChart data={active.stats.cumulative} positive={true} />
 
           {/* Stats row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-100 font-mono">

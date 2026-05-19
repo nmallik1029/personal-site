@@ -9,7 +9,7 @@ const projects = [
     stack: ["TypeScript", "Python"],
     description:
       "Portfolio generator that builds personalized baskets from user-provided capital, risk tolerance, and interests. A scoring engine underneath uses volatility, historical returns, and financial indicators to rank suggestions.",
-    href: "https://github.com/nmallik1029/ember_analytics",
+    href: "https://github.com/nmallik1029/ember-analytics",
   },
   {
     title: "VSN Analysis",

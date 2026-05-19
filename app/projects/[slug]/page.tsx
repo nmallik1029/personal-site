@@ -9,7 +9,7 @@ const projects: Record<
     ticker: "EMBR",
     name: "EMBER Analytics",
     tagline: "Portfolio generator",
-    repo: "https://github.com/nmallik1029/ember_analytics",
+    repo: "https://github.com/nmallik1029/ember-analytics",
   },
   "vsn-analysis": {
     ticker: "VSNA",

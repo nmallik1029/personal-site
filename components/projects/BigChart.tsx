@@ -25,8 +25,14 @@ export default function BigChart({ data, positive }: Props) {
   const innerW = w - padding.left - padding.right;
   const innerH = h - padding.top - padding.bottom;
 
-  const max = Math.max(...slice, 1);
-  const min = 0;
+  // For cumulative data, use actual min/max of the slice so the line uses
+  // the full vertical space — pinning min to 0 would flatten a monotonic line
+  // when the starting value is far above 0.
+  const rawMax = Math.max(...slice, 1);
+  const rawMin = Math.min(...slice, 0);
+  const pad = (rawMax - rawMin) * 0.1 || 1;
+  const max = rawMax + pad;
+  const min = Math.max(0, rawMin - pad);
   const range_ = max - min || 1;
   const step = slice.length > 1 ? innerW / (slice.length - 1) : innerW;
 

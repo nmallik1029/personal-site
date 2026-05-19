@@ -25,7 +25,7 @@ const projects: Project[] = [
     ticker: "EMBR",
     name: "EMBER Analytics",
     tagline: "Portfolio generator",
-    repo: "nmallik1029/ember_analytics",
+    repo: "nmallik1029/ember-analytics",
     status: "In Dev",
     customMetric: { label: "Portfolios generated", value: "47" },
   },
@@ -180,9 +180,18 @@ async function buildProjectData(p: Project): Promise<ProjectData> {
 
   const commits = p.manualCommits ?? apiCommits;
   const loc = p.manualLoc ?? apiLoc;
-  const sparkline = weekly.length > 0 ? weekly : new Array(52).fill(0);
+  const weeklySeries = weekly.length > 0 ? weekly : new Array(52).fill(0);
 
-  const last8 = sparkline.slice(-8);
+  // Cumulative commits — starts at the count BEFORE the 52w window and adds
+  // each week. End of the series equals totalCommits, so the chart's last
+  // point matches the "Commits" stat.
+  const sumWeekly = weeklySeries.reduce((a, b) => a + b, 0);
+  const baseCommits = Math.max(0, commits - sumWeekly);
+  let running = baseCommits;
+  const cumulative = weeklySeries.map((w) => (running += w));
+
+  // Momentum (still used for the percentage indicator + color)
+  const last8 = weeklySeries.slice(-8);
   const recent = last8.slice(-4).reduce((a, b) => a + b, 0);
   const prior = last8.slice(0, 4).reduce((a, b) => a + b, 0);
   const change =
@@ -197,7 +206,7 @@ async function buildProjectData(p: Project): Promise<ProjectData> {
     liveUrl: p.liveUrl,
     status: p.status,
     customMetric: p.customMetric,
-    stats: { commits, loc, sparkline, change },
+    stats: { commits, loc, sparkline: weeklySeries, cumulative, change },
     languages,
     recentCommits,
   };
