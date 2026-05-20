@@ -1,25 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import crypto from "crypto";
 
 export const runtime = 'edge';
 
 
 // Verifies GitHub's X-Hub-Signature-256 header against the request body
-// using the shared secret. Uses timingSafeEqual to prevent timing attacks.
-function verifySignature(
+// using the shared secret. Constant-time comparison prevents timing attacks.
+async function verifySignature(
   payload: string,
   signatureHeader: string | null,
   secret: string
-): boolean {
+): Promise<boolean> {
   if (!signatureHeader) return false;
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const sigBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(payload)
+  );
+
   const expected =
     "sha256=" +
-    crypto.createHmac("sha256", secret).update(payload).digest("hex");
-  const a = Buffer.from(signatureHeader);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
+    Array.from(new Uint8Array(sigBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+  // Constant-time comparison
+  if (expected.length !== signatureHeader.length) return false;
+  let result = 0;
+  for (let i = 0; i < expected.length; i++) {
+    result |= expected.charCodeAt(i) ^ signatureHeader.charCodeAt(i);
+  }
+  return result === 0;
 }
 
 export async function POST(req: NextRequest) {
@@ -34,7 +55,7 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("x-hub-signature-256");
 
-  if (!verifySignature(body, signature, secret)) {
+  if (!(await verifySignature(body, signature, secret))) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
