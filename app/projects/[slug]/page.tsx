@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const runtime = 'edge';
+
+
 const projects: Record<
   string,
   { ticker: string; name: string; tagline: string; live?: string; repo: string }

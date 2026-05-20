@@ -21,6 +21,7 @@ export const metadata: Metadata = {
   title: "Neel Mallik",
   description:
     "CS junior at Northeastern building at the intersection of data, finance, and the web.",
+  icons: { icon: "/icon.png"},
 };
 
 export default function RootLayout({

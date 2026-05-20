@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import crypto from "crypto";
 
+export const runtime = 'edge';
+
+
 // Verifies GitHub's X-Hub-Signature-256 header against the request body
 // using the shared secret. Uses timingSafeEqual to prevent timing attacks.
 function verifySignature(
