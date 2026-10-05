@@ -4,6 +4,10 @@ import { useState } from "react";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+// Underlined fields; the shadow thickens the line on focus without shifting layout
+const field =
+  "mt-2 w-full border-0 border-b border-ink/50 bg-transparent px-0 py-2 text-lead text-ink transition-[border-color,box-shadow] focus:border-ink focus:shadow-[0_1px_0_0_var(--ink)] focus:outline-none";
+
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -44,7 +48,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
       <input type="hidden" name="subject" value="New message from neelmallik.com" />
       {/* Honeypot field to deter bots */}
       <input
@@ -55,81 +59,74 @@ export default function ContactForm() {
         autoComplete="off"
       />
 
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2"
-        >
-          Name
-        </label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          required
-          className="w-full bg-transparent border-b border-gray-200 focus:border-gray-900 outline-none py-2 text-base text-gray-900 placeholder:text-gray-300 transition-colors"
-          placeholder="Your name"
-        />
+      <div className="grid gap-8 sm:grid-cols-2">
+        <div>
+          <label htmlFor="name" className="text-small text-muted">
+            Name
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            required
+            autoComplete="name"
+            className={field}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="email" className="text-small text-muted">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            className={field}
+          />
+        </div>
       </div>
 
       <div>
-        <label
-          htmlFor="email"
-          className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2"
-        >
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          className="w-full bg-transparent border-b border-gray-200 focus:border-gray-900 outline-none py-2 text-base text-gray-900 placeholder:text-gray-300 transition-colors"
-          placeholder="you@example.com"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="message"
-          className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2"
-        >
+        <label htmlFor="message" className="text-small text-muted">
           Message
         </label>
         <textarea
           id="message"
           name="message"
           required
-          rows={5}
-          className="w-full bg-transparent border-b border-gray-200 focus:border-gray-900 outline-none py-2 text-base text-gray-900 placeholder:text-gray-300 transition-colors resize-none"
-          placeholder="What's on your mind?"
+          rows={6}
+          className={`${field} resize-y`}
         />
       </div>
 
-      <div className="flex items-center gap-6 pt-2">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
         <button
           type="submit"
           disabled={status === "sending"}
-          className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-mono uppercase tracking-widest border border-gray-900 hover:bg-white hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="btn group"
         >
-          {status === "sending" ? "Sending…" : "Send Message"}
+          {status === "sending" ? "Sending…" : "Send message"}
           {status !== "sending" && (
-            <span className="transition-transform duration-300 group-hover:translate-x-1">
+            <span
+              aria-hidden
+              className="transition-transform duration-300 group-hover:translate-x-0.5"
+            >
               →
             </span>
           )}
         </button>
 
-        {status === "sent" && (
-          <span className="text-xs font-mono uppercase tracking-widest text-green-600">
-            Sent! I&apos;ll be in touch
-          </span>
-        )}
-        {status === "error" && (
-          <span className="text-xs font-mono uppercase tracking-widest text-red-600">
-            {errorMsg || "Error — try again"}
-          </span>
-        )}
+        <p role="status" aria-live="polite" className="text-small">
+          {status === "sent" && (
+            <span className="text-live">Thanks, your message was sent.</span>
+          )}
+          {status === "error" && (
+            <span className="text-danger">{errorMsg}</span>
+          )}
+        </p>
       </div>
     </form>
   );

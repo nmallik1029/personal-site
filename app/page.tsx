@@ -1,340 +1,190 @@
 import Link from "next/link";
-import Skills from "@/components/Skills";
-import FadeIn from "@/components/FadeIn";
-
-const projects = [
-  {
-    title: "EMBER Analytics",
-    year: "2025",
-    stack: ["TypeScript", "Python"],
-    description:
-      "Portfolio generator that builds personalized baskets from user-provided capital, risk tolerance, and interests. A scoring engine underneath uses volatility, historical returns, and financial indicators to rank suggestions.",
-    href: "https://github.com/nmallik1029/ember-analytics",
-  },
-  {
-    title: "VSN Analysis",
-    year: "2025",
-    stack: ["Python", "JavaScript", "Supabase"],
-    description:
-      "Full-stack stock analysis platform built on real-time yfinance data. Authenticated users can search equities and indices, save research, and share insights. Designed for retail investors who shouldn't need a Bloomberg terminal to look up a ticker.",
-    href: "https://github.com/nmallik1029/vsn_analysis",
-    live: "https://vsnanalysis.com",
-  },
-];
-
-function SlideLink({
-  href,
-  label,
-  reveal,
-}: {
-  href: string;
-  label: string;
-  reveal: string;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group relative block h-6 overflow-hidden text-sm font-mono w-fit text-right"
-    >
-      <span className="block h-6 leading-6 text-gray-700 transition-transform duration-300 ease-out group-hover:-translate-y-6">
-        {label}
-      </span>
-      <span className="block h-6 leading-6 text-gray-900 transition-transform duration-300 ease-out group-hover:-translate-y-6">
-        {reveal}
-      </span>
-    </a>
-  );
-}
+import Drift from "@/components/Drift";
+import Intro from "@/components/Intro";
+import ShowcaseVideo from "@/components/ShowcaseVideo";
+import { profile } from "@/content/profile";
+import { projects } from "@/content/projects";
 
 export default function Home() {
+  const showcase = projects.filter((p) => p.media);
+
   return (
-    <main className="min-h-screen bg-white text-gray-900">
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <div className="w-full max-w-6xl mx-auto px-6 lg:px-12 lg:grid lg:grid-cols-2 lg:gap-20">
+    <>
+      <Intro text={profile.welcome} />
 
-        {/* ─── Left rail (sticky on desktop) ─────────────── */}
-        <aside className="lg:sticky lg:top-0 flex flex-col py-16 lg:py-24">
-          <h1 className="text-6xl font-semibold tracking-tight mb-4">
-            Neel Mallik
-          </h1>
-          <p className="text-2xl text-gray-700 mb-6">
-            CS + Mathematics at Northeastern University
-          </p>
-          <p className="text-lg text-gray-600 leading-relaxed mb-10 max-w-md">
-            I build <strong className="font-semibold text-gray-900">full-stack apps at the intersection of data, finance, and
-            the web.</strong> Usually with something algorithmic running underneath.
-          </p>
-
-          <div className="mb-10">
-            <Skills />
-          </div>
-
-        </aside>
-
-        {/* ─── Right column (scrolls) ────────────────────── */}
-        <section className="py-8 lg:py-24">
-
-          {/* Projects */}
-          <div id="work" className="mb-12">
-            <h2 className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-8 lg:hidden">
-              Projects
-            </h2>
-            <div className="space-y-10">
-              {projects.map((p) => (
-                <div key={p.title}>
-                  <div className="flex items-baseline justify-between mb-1">
-                    <div className="flex items-baseline gap-3 flex-wrap">
-                      <h3 className="text-2xl font-semibold">{p.title}</h3>
-                      {p.live && (
-                        <a
-                          href={p.live}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm font-mono text-gray-900 underline underline-offset-4 decoration-gray-300 hover:decoration-gray-900 transition-colors"
-                        >
-                          {p.live.replace(/^https?:\/\//, "")}
-                        </a>
-                      )}
-                    </div>
-                    <span className="text-sm font-mono text-gray-400">{p.year}</span>
-                  </div>
-                  <p className="text-base text-gray-600 leading-relaxed mb-4">
-                    {p.description}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <div className="flex flex-wrap gap-1.5">
-                      {p.stack.map((tech) => (
-                        <span
-                          key={tech}
-                          className="text-sm font-mono bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                    <a
-                      href={p.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-mono text-gray-400 hover:text-gray-900 transition-colors"
-                    >
-                      GitHub →
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* About */}
-          <div id="about">
-            <h2 className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-8 lg:hidden">
-              About
-            </h2>
-            <p className="text-base text-gray-600 leading-relaxed mb-12">
-              Junior studying CS with a minor in Mathematics. I care about
-              making software that's actually useful. Clean interfaces over
-              clever APIs, real data over mock data, tools that do one thing
-              well.
-            </p>
-            <div className="flex flex-wrap items-start justify-between gap-y-6">
-              <div className="flex flex-col gap-1 text-sm font-mono leading-6 text-gray-400">
-                <span className="h-6">Boston, MA</span>
-                <span className="h-6">Available Jul–Dec 2026</span>
-                <span className="h-6">Class of 2028</span>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <SlideLink
-                  href="mailto:nmallik1029@gmail.com"
-                  label="Email"
-                  reveal="nmallik1029@gmail.com"
-                />
-                <SlideLink
-                  href="https://github.com/nmallik1029"
-                  label="GitHub"
-                  reveal="github.com/nmallik1029"
-                />
-                <SlideLink
-                  href="https://linkedin.com/in/neel-mallik"
-                  label="LinkedIn"
-                  reveal="linkedin.com/in/neel-mallik"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-        </div>
-
-        {/* ─── View Resume CTA (inside splash) ────────────── */}
-        <div className="-mt-12 lg:-mt-16 flex justify-center">
-          <Link
-            href="/resume"
-            className="group inline-flex items-center gap-3 bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-mono uppercase tracking-widest hover:bg-gray-700 transition-colors shadow-sm"
+      {/* Hero: exactly fills the first screen */}
+      <section className="flex min-h-[calc(100svh_-_var(--header-h))] flex-col justify-between gap-12 px-gutter pb-[max(0.75rem,1vw)] pt-[max(1.5rem,3vw)]">
+        <div>
+          <p
+            id="welcome"
+            data-reveal="mask"
+            className="type-welcome text-[clamp(1.125rem,1.6vw,1.75rem)]"
           >
-            View Resume
-            <span className="transition-transform duration-300 group-hover:translate-x-1">
-              →
-            </span>
-          </Link>
+            <span>{profile.welcome}</span>
+          </p>
+          <p
+            data-reveal="fade"
+            className="mt-[max(1rem,1.5vw)] max-w-[30ch] text-[clamp(1.625rem,3.2vw,3.75rem)] font-medium leading-[1.12] tracking-[-0.03em]"
+          >
+            I study Computer Science and Finance with a concentration in Artificial Intelligence @ Northeastern University.
+          </p>
         </div>
-      </div>
 
-      {/* ─── Section divider ────────────────────────────── */}
-      <div className="max-w-6xl mx-auto px-6 lg:px-12 -mt-4 lg:-mt-6">
-        <div className="border-t-2 border-gray-300" />
-      </div>
-
-      {/* ─── About (scroll-revealed) ────────────────────── */}
-      <section className="max-w-5xl mx-auto px-6 lg:px-12 py-12 lg:py-16">
-        <FadeIn>
-          <h2 className="text-3xl font-semibold tracking-tight mb-8">
-            About me
-          </h2>
-        </FadeIn>
-
-        <div className="columns-1 lg:columns-2 gap-x-12">
-        <FadeIn delay={100} className="break-inside-avoid">
-          <p className="text-base text-gray-700 leading-relaxed mb-6">
-            I&apos;m a{" "}
-            <strong className="font-semibold text-gray-900">
-              Computer Science student at Northeastern University
-            </strong>{" "}
-            with a concentration in{" "}
-            <strong className="font-semibold text-gray-900">
-              Artificial Intelligence
-            </strong>{" "}
-            and a strong interest in{" "}
-            <strong className="font-semibold text-gray-900">
-              machine learning, data analysis, and full-stack development
-            </strong>
-            . What draws me most to technology is the ability to turn
-            information into something practical and meaningful. I enjoy
-            building systems that simplify decision making, uncover patterns in
-            data, and create smoother experiences for users. Most of my work
-            revolves around{" "}
-            <strong className="font-semibold text-gray-900">
-              Python, TypeScript, JavaScript, and SQL
-            </strong>
-            , and I&apos;m especially interested in the intersection of
-            analytics, prediction models, and user-focused software design.
-          </p>
-        </FadeIn>
-
-        <FadeIn delay={250} className="break-inside-avoid">
-          <p className="text-base text-gray-700 leading-relaxed mb-6">
-            A lot of my recent work has centered around finance and data-driven
-            applications. I developed{" "}
-            <strong className="font-semibold text-gray-900">
-              EMBER Analytics
-            </strong>
-            , a portfolio generation platform that creates personalized stock
-            portfolios based on user inputs like risk tolerance, investment
-            goals, and existing holdings. The platform uses{" "}
-            <strong className="font-semibold text-gray-900">
-              scoring systems, financial indicators, and volatility analysis
-            </strong>{" "}
-            to generate recommendations that feel more adaptive and
-            personalized. Building it gave me experience across both{" "}
-            <strong className="font-semibold text-gray-900">
-              frontend and backend development
-            </strong>
-            , while also reinforcing how important it is to make technically
-            complex systems feel intuitive for the user.
-          </p>
-        </FadeIn>
-
-        <FadeIn delay={400} className="break-inside-avoid">
-          <p className="text-base text-gray-700 leading-relaxed mb-6">
-            I also created{" "}
-            <strong className="font-semibold text-gray-900">VSN Analysis</strong>
-            , a{" "}
-            <strong className="font-semibold text-gray-900">
-              full-stack stock analysis platform
-            </strong>{" "}
-            built around real-time financial data and community interaction.
-            The platform includes{" "}
-            <strong className="font-semibold text-gray-900">
-              live charting tools, stock analysis features, authentication
-              systems
-            </strong>
-            , and a community space where users can discuss market activity
-            and ideas. One of my biggest goals with the project was{" "}
-            <strong className="font-semibold text-gray-900">accessibility</strong>
-            . I wanted to make financial tools feel approachable to users who
-            may not have extensive investing experience while still providing
-            meaningful depth and functionality. Working on projects like this
-            has strengthened my interest in creating software that balances
-            strong technical foundations with clean and straightforward user
-            experiences.
-          </p>
-        </FadeIn>
-
-        <FadeIn delay={550} className="break-inside-avoid">
-          <p className="text-base text-gray-700 leading-relaxed mb-6">
-            Outside of software development, rowing has been one of the most
-            important parts of my life and has shaped a lot of how I approach{" "}
-            <strong className="font-semibold text-gray-900">
-              leadership and teamwork
-            </strong>
-            . I{" "}
-            <strong className="font-semibold text-gray-900">
-              captained my high school rowing team
-            </strong>
-            , an experience that taught me how to lead under pressure, support
-            teammates through difficult training cycles, and keep a group
-            motivated toward long-term goals. Rowing is a sport that demands
-            consistency and discipline every single day, and I learned quickly
-            that success depends just as much on trust and communication as it
-            does on physical performance. Competing in regattas and earning
-            medals alongside my teammates remains one of the most rewarding
-            experiences I&apos;ve had, not only because of the results but
-            because of the work and commitment it took to get there.
-          </p>
-        </FadeIn>
-
-        <FadeIn delay={700} className="break-inside-avoid">
-          <p className="text-base text-gray-700 leading-relaxed mb-6">
-            That same mindset has carried over into the way I work with people
-            today. Through my role with{" "}
-            <strong className="font-semibold text-gray-900">Gankster.gg</strong>
-            , I have worked directly with a large user base, resolving support
-            tickets and helping users navigate technical issues clearly and
-            efficiently. Working in a fast-paced support environment taught me
-            how important{" "}
-            <strong className="font-semibold text-gray-900">
-              communication and adaptability
-            </strong>{" "}
-            are, especially when working with people from different technical
-            backgrounds. I&apos;ve also enjoyed building communities outside of
-            work, including{" "}
-            <strong className="font-semibold text-gray-900">
-              founding the Games Club at Northeastern
-            </strong>{" "}
-            as a way to bring students together through shared interests and
-            collaboration.
-          </p>
-        </FadeIn>
-
-        <FadeIn delay={850} className="break-inside-avoid">
-          <p className="text-base text-gray-700 leading-relaxed">
-            At this stage, I&apos;m focused on continuing to grow both
-            technically and personally through projects that challenge me to
-            think creatively and solve meaningful problems. Whether I&apos;m
-            building applications, analyzing data, collaborating with a team,
-            or working toward long-term goals outside of technology, I try to
-            approach everything with{" "}
-            <strong className="font-semibold text-gray-900">
-              curiosity, consistency, and a willingness to improve
-            </strong>
-            . I&apos;m excited by work that combines technical depth with
-            real-world impact, and I&apos;m always looking for opportunities
-            to build things that people genuinely find useful.
-          </p>
-        </FadeIn>
+        {/* Container for the name, which is sized to span it exactly */}
+        <div className="[container-type:inline-size]">
+          <div className="flex items-end justify-between gap-6 pb-3 text-small font-medium">
+            <p data-reveal="mask">
+              <span>{profile.location}</span>
+            </p>
+            <a href="#showcase" data-reveal="mask">
+              <span>
+                Scroll{" "}
+                <span aria-hidden="true" className="scroll-arrow">
+                  ↓
+                </span>
+              </span>
+            </a>
+          </div>
+          <div data-reveal="rule" aria-hidden="true" />
+          <h1 data-reveal="mask" className="type-masthead pt-[max(0.5rem,0.8vw)]">
+            <span>{profile.name}</span>
+          </h1>
         </div>
       </section>
-    </main>
+
+      {/* Project Showcase */}
+      <section
+        id="showcase"
+        aria-labelledby="showcase-title"
+        className="scroll-mt-[var(--header-h)] px-gutter pt-[max(4rem,7vw)]"
+      >
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+          <h2
+            id="showcase-title"
+            data-reveal="mask"
+            className="type-title text-[clamp(2.75rem,7vw,8rem)]"
+          >
+            <span>Project Showcase</span>
+          </h2>
+          <div data-reveal="mask" className="shrink-0 pb-[0.4em]">
+            <Link href="/projects" className="cta group font-medium">
+              <span className="link-draw">All projects</span>
+              <span aria-hidden="true" className="arrow">
+                →
+              </span>
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-[max(2rem,3.5vw)] grid gap-[max(1rem,1.25vw)] md:grid-cols-2">
+          {showcase.map((p) => (
+            // The video is the whole card; its labels sit on top of it in
+            // fixed colors, since they're over footage, not the page.
+            <Link
+              key={p.slug}
+              href={`/projects/${p.slug}`}
+              data-reveal="fade"
+              className="group relative isolate block aspect-[16/10] overflow-hidden rounded-[1.25rem] bg-black"
+            >
+              <div className="absolute inset-0 transition-transform duration-[1.2s] ease-out group-hover:scale-[1.03]">
+                {p.media && (
+                  <ShowcaseVideo
+                    src={p.media.video}
+                    poster={p.media.poster}
+                    label={`Preview of ${p.name}`}
+                  />
+                )}
+              </div>
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/50 via-black/15 to-transparent"
+              />
+              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-[max(0.75rem,1.1vw)]">
+                {/* One row of tags: any that don't fit beside the name wrap
+                    onto a second row, which is cut off */}
+                <ul className="flex h-[2em] min-w-0 flex-wrap gap-x-1.5 overflow-hidden text-small font-medium">
+                  {p.stack.slice(0, 3).map((tech) => (
+                    <li
+                      key={tech}
+                      className="flex h-[2em] items-center rounded-full bg-white/90 px-[0.85em] text-[#141210] backdrop-blur"
+                    >
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+                <span className="flex shrink-0 items-center gap-2 rounded-[0.7rem] bg-white px-[1em] py-[0.6em] text-[#141210] shadow-[0_8px_24px_rgb(0_0_0/0.25)]">
+                  <span className="text-lead font-bold tracking-[-0.02em]">
+                    {p.name}
+                  </span>
+                  <span aria-hidden="true" className="arrow">
+                    →
+                  </span>
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* About */}
+      <section
+        id="about"
+        aria-labelledby="about-title"
+        className="flex min-h-[100svh] scroll-mt-[var(--header-h)] flex-col justify-center px-gutter pb-[max(1rem,2vw)] pt-[max(6rem,10vw)]"
+      >
+        <h2
+          id="about-title"
+          data-reveal="mask"
+          className="text-small font-semibold uppercase tracking-[0.08em] text-muted"
+        >
+          <span>About</span>
+        </h2>
+        <p
+          data-reveal="fade"
+          className="mt-[max(1.5rem,2.5vw)] max-w-[20ch] text-[clamp(2.25rem,5vw,6rem)] font-extrabold leading-[1.02] tracking-[-0.04em]"
+        >
+          A little about me...
+        </p>
+
+        {/* A staircase (one column on phones): heading at the left edge, the
+            first column in from the left, the second on the right and lower.
+            The second also drifts a little as you scroll. */}
+        <div className="mt-[max(3rem,5vw)] grid gap-y-[1em] text-lead text-muted md:grid-cols-12 md:gap-x-[max(1.5rem,2.5vw)]">
+          <div className="max-w-[34rem] space-y-[1em] md:col-span-5 md:col-start-2 lg:col-span-4 lg:col-start-3">
+            <p data-reveal="fade">
+              I grew up in Chicago before moving to a small(ish) town on the Iowa–Illinois border.
+              I did soccer, competitive sculling, snare drum, and plenty of video games, but two
+              things stuck: investing and coding.
+            </p>
+            <p data-reveal="fade">
+              I&apos;ve always been fascinated by how a company&apos;s image with investors moves
+              billions of dollars a day. At 14, I&apos;d watch my few hundred dollars of Amazon,
+              NVIDIA, and Apple tick up and back down without caring why. Now that my losses are
+              actually <em>my</em> losses, it all feels a lot more real.
+            </p>
+          </div>
+          <Drift className="max-w-[34rem] space-y-[1em] md:col-span-6 md:col-start-7 md:mt-[max(5rem,9vw)] lg:col-span-5 lg:col-start-8">
+            <p data-reveal="fade">
+              My coding journey started in elementary school with a line-following robot for my school&apos;s
+              tech fair. It went to the state fair and won its category. Since then I&apos;ve built
+              client websites, game scripts and styles, and full applications that grew into physical products.
+            </p>
+            <p data-reveal="fade">
+              Coding and investing are a natural pair. This summer I built a watchlist bot that pinged my phone
+              with a score and its take on each stock it flagged. Tinkering with its screening
+              algorithms and news sources taught me a ton about what actually moves prices.
+            </p>
+            <div data-reveal="mask" className="pt-2">
+              <Link href="/resume" className="cta group font-semibold text-ink">
+                <span className="link-draw">Resume</span>
+                <span aria-hidden="true" className="arrow">
+                  →
+                </span>
+              </Link>
+            </div>
+          </Drift>
+        </div>
+      </section>
+    </>
   );
 }

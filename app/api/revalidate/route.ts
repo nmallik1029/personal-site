@@ -79,9 +79,9 @@ export async function POST(req: NextRequest) {
     /* ignore */
   }
 
-  // Drop the cached pages so next fetch hits GitHub again
+  // Drop the cached page so the next request rebuilds it. /projects is static
+  // for now, so this only matters once it reads live GitHub data again.
   revalidatePath("/projects");
-  revalidatePath("/projects/[slug]", "page");
 
   return NextResponse.json({ ok: true, revalidated: true, repo });
 }
